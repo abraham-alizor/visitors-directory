@@ -1,25 +1,36 @@
-import logo from './logo.svg';
+import React, { Component } from 'react';
+import CardList from './components/cardList/CardList';
+import SearchComponent from './components/SearchComponent';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export default class App extends Component {
+	constructor() {
+		super();
+		this.state = {
+			visitors: [],
+			searchField: '',
+		};
+	}
+	componentDidMount() {
+		fetch('https://jsonplaceholder.typicode.com/users')
+			.then((response) => response.json())
+			.then((users) => this.setState({ visitors: users }));
+	}
 
-export default App;
+	handleChange = (e) => {
+		this.setState({ searchField: e.target.value });
+	};
+	render() {
+		const { visitors, searchField } = this.state;
+		const filteredVisitors = visitors.filter((visitor) =>
+			visitor.name.toString().toLowerCase().includes(searchField.toLowerCase())
+		);
+		return (
+			<div className='w-full lg:pr-32 lg:pl-32 flex flex-col items-center bg-white dark:bg-gray-800'>
+				<h1 className='dark:text-purple-200'>Visitors Directory</h1>
+				<SearchComponent placeHolder=' search users' handleChange={this.handleChange} />
+				<CardList visitors={filteredVisitors} />
+			</div>
+		);
+	}
+}
